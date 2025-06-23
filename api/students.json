@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": 3,
+    "name": "juan jose gomez",
+    "career": "HISTORIA",
+    "career_id": 4
+  },
+  {
+    "id": 4,
+    "name": "Emilse Rolón",
+    "career": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
+    "career_id": 5
+  }
+]

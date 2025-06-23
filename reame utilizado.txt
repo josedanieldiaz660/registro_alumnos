@@ -1,0 +1,22 @@
+Para la elaboración de la pagina 
+
+INTELIGENCIAS ARTIFICIALES UTILIZADAS:
+
+Para la elaboración de la presente pagina Web se utilizaron las siguientes inteligencias artificiales:
+
+•	CHAT.DEEPSEEK: Esta inteligencia artificial, fue la primera que se utilizó, no solo para programar, sino que es la utilizada por primera inteligencia artificial. Por ser la primera herramienta, y al no conocer cómo se utilizaba ninguna, tomaba al pie de la letra cada una de las sugerencias que me daba como respuesta. Luego, comencé a entender y a diferenciar cada una de las necesidades que tenía, que parte del lenguaje estaba trabajando. Es así que comencé a entender que para que se ajustara a lo que realmente quería como resultado tres cuestiones muy importantes:
+		Mayor claridad de parte mía de lo que realmente necesitaba hacer.
+		En función de lo anterior, debía limitar dando un contexto mas acotado con palabras mas exactas y definidas para que no 		ampliara mas allá de lo que realmente estaba necesitando.
+		Debía controlar cada resultado antes de copiar y pegar, comprobando posteriormente el resultado. Por ejemplo me agregaba 		elementos del css al código html cuando no se lo había pedido.
+Al utilizar comando muy extensos y pedirles que me los corrija, esta inteligencia no da repuesta, se queda como colgada y hay que volver a cargar la página, no funcionando igualmente. Lo mismo cuando le subía los archivos completos. En mi caso no resulto. 
+Por todo esto, es que esta inteligencia artificial la utilizo para comando especifico o cuestiones muy puntuales.
+
+•	CHAT. GPT: esta seria la segunda inteligencia que comencé a utilizar, a pesar de que fue la primera que tenía conocimiento que existía. Para lo que es programación, me sirvió en partes. No logre comprender las explicaciones que me daban ante las consultas en la mayoría de los casos. La forma en que me presentaba los resultados no era muy comprensible para mí. Entiendo que puede tener otras funcionalidades pero para programación no me resultó muy útil.
+
+
+•	COPILOTO GITHUB: esta la empecé a utilizar debido a que la otras dos anteriores no me estaban dando resultado con las instrucciones que le estaba dando, y lo que estaba necesitando. Es en ese contexto, donde pude comenzar a reparar errores muy finos o que requerían de la utilización más específica de los códigos, como ser para “ELEMINAR “algún estudiante, carrera, o facultad, donde  ya no solo debía trabajar o realizar modificación en los .html, o en app.js, si no en la api index.js. Al realizar modificaciones que necesariamente debía relacionar al menos 3 archivos, esta inteligencia enfocada en programación y al estar dentro del visual studio code, resulto ser la mas productiva y facil de seguir. 
+Con esta inteligencia me anime a realizar cambios puntuales, sin temor a que se rompiera el código, debido a que me daba los parámetros para poder hacerlo sin problemas. Es la que más útil me resultó y pude avanzar, pudiendo solucionar problemas o errores que iban surgiendo. Tuve que dejar usarla (justo cuando mas la necesitaba para finalizar) debido a que la licencia de 30 días se había vencido, teniendo que volver a utilizar las anteriores y probar Gimini IA
+
+
+•	GIMINI IA: Esta inteligencia fue la última de las que utilice en este periodo. Existe una diferencia importante en la forma que presenta los resultados cuando se utiliza la opción gratuita o la Pro que se puede utilizar por momentos limitados. Cuando se utiliza la Pro 2.5, la forma de diagramar la respuesta es mucho mas clara y comprensible, pudiendo pedirles cuadros comparativos que son amplios en el desarrollo, sin plantear parámetros específicos. En cambio, la gratuita, la forma en que presenta los resultados en lo que tiene que ver con la programación, es muy línea y menos comprensible. Para que esta sea mas clara se le debe dar un contexto mas especifico con los pasos necesario y la forma en que se necesita. Por lo que noto una diferencia para lo que es en programación entre la versión gratuita y la versión Pro (siendo esta ultima mucho mas aplicable). 
+

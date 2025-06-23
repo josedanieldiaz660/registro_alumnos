@@ -1,0 +1,34 @@
+[
+  {
+    "id": 4,
+    "code": "CARR-20250607-7669",
+    "name": "HISTO",
+    "faculty_id": 9,
+    "level": "posgrado",
+    "duration": 4
+  },
+  {
+    "id": 5,
+    "code": "CARR-20250619-5024",
+    "name": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
+    "faculty_id": 12,
+    "level": "pregrado",
+    "duration": "9"
+  },
+  {
+    "id": 6,
+    "code": "CARR-20250619-2164",
+    "name": "INGENIERIA EN TELECOMUNICACIONES",
+    "faculty_id": 12,
+    "level": "posgrado",
+    "duration": "11"
+  },
+  {
+    "id": 7,
+    "code": "CARR-20250619-2026",
+    "name": "ASISTENTE SOCIAL",
+    "faculty_id": 14,
+    "level": "pregrado",
+    "duration": "6"
+  }
+]
