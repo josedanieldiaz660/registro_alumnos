@@ -6,7 +6,7 @@ const PORT = 5001;
 
 // API Key ficticia
 const API_KEY = '12345ABCDEF';
-
+//// no se que estoy haciendo, pero lo estoy haciendo bien
 // Middleware
 app.use(cors());
 app.use(express.json());
