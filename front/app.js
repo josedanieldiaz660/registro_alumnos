@@ -16,7 +16,7 @@ const headers = {
 // ==============================================
 
 // Function to display results in a specified div
-function showResult(divId, message, isError = false) {
+function showResult(divId, message, isError = false) {/// Esta funcion se usa para mostrar mensajes de exito o error en un div especifico
     const resultDiv = document.getElementById(divId);
     if (resultDiv) {
         resultDiv.innerHTML = message;
@@ -46,7 +46,7 @@ async function registerCareerService(careerData) {/// aca se remite desde el car
     return await response.json();
 }
 
-async function getAllCareersService() {
+async function getAllCareersService() {/// aca se remite desde el carreras.html cuando el usurio quiere ver todas las carreras
     const response = await fetch(API_CAREERS_URL, {
         headers: {
             "Authorization": `Bearer ${API_KEY}`
@@ -60,8 +60,9 @@ async function getAllCareersService() {
 }
 
 // Servicio para obtener una carrera por ID
-async function getCareerByIdService(id) {/// cuando desde carreras.html se busca una carrera por ID viene aca
-    const response = await fetch(`${API_CAREERS_URL}/${id}`, {
+/// cuando desde carreras.html se busca una carrera por ID viene aca
+async function getCareerByIdService(id) {
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {//// aca se remite desde carreras.html cuando el usurio quiere ver una carrera por ID
         headers: {
             "Authorization": `Bearer ${API_KEY}`
         }
@@ -74,7 +75,7 @@ async function getCareerByIdService(id) {/// cuando desde carreras.html se busca
 }
 
 // Servicio para eliminar una carrera por ID
-async function deleteCareerService(id) {
+async function deleteCareerService(id) {/// Cuando desde carreras.html se quiere eliminar una carrera por ID viene aca
     const response = await fetch(`${API_CAREERS_URL}/${id}`, {
         method: "DELETE",
         headers: {
@@ -88,8 +89,8 @@ async function deleteCareerService(id) {
     return await response.json();
 }
 
-async function updateCareerService(id, data) {
-    const response = await fetch(`${API_CAREERS_URL}/${id}`, {
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
         method: "PUT",
         headers,
         body: JSON.stringify(data)
@@ -105,13 +106,13 @@ async function updateCareerService(id, data) {
 // FUNCIONES PARA CARRERAS (manejo de UI)
 // ==============================================
 
-async function handleRegisterCareer(event) {
+async function handleRegisterCareer(event) {/// Esta funcion se usa para registrar una carrera desde carreras.html
     event.preventDefault();
 
     const code = document.getElementById('careerCode').value.trim();
     const name = document.getElementById('careerName').value.trim();
     const faculty_id = document.getElementById('facultySelect').value;
-    const level = document.getElementById('categorySelect').value.trim(); // Changed to categorySelect as per your HTML
+    const level = document.getElementById('categorySelect').value.trim(); /// Este campo puede ser opcional, pero se valida si se ingresa
     const duration = document.getElementById('duration').value.trim();
 
     if (!code || !name || !faculty_id || !level || !duration) {
@@ -142,7 +143,7 @@ async function handleRegisterCareer(event) {
     }
 }
 
-function generateCareerCode() {
+function generateCareerCode() {/// Esta funcion genera un codigo unico para cada carrera
     const now = new Date();
     const dateStr = now.getFullYear().toString() +
         String(now.getMonth() + 1).padStart(2, '0') +
@@ -151,7 +152,7 @@ function generateCareerCode() {
     return `CARR-${dateStr}-${random}`;
 }
 
-async function handleSearchCareerById() {
+async function handleSearchCareerById() {// Esta funcion se usa para buscar una carrera por ID desde carreras.html
     const id = document.getElementById('careerId').value.trim();
     if (!id) {
         Swal.fire({
@@ -164,7 +165,7 @@ async function handleSearchCareerById() {
 
     try {
         const career = await getCareerByIdService(id);
-        const faculty = await getCategoryByIdService(career.faculty_id); // Assuming you need the faculty name
+        const faculty = await getCategoryByIdService(career.faculty_id); /// Obtiene la facultad por ID
         const resultHTML = `
             <strong>Carrera encontrada:</strong><br><br>
             <strong>ID:</strong> ${career.id}<br>
@@ -186,7 +187,7 @@ async function handleSearchCareerById() {
     }
 }
 
-async function handleDeleteCareerById() {
+async function handleDeleteCareerById() {/// Esta funcion se usa para eliminar una carrera por ID desde carreras.html
     const id = document.getElementById('deleteCareerId').value.trim();
     if (!id) {
         Swal.fire({
@@ -231,15 +232,14 @@ async function handleDeleteCareerById() {
     }
 }
 
-async function editCareer(id) {
+async function editCareer(id) {/// Esta funcion se usa para editar una carrera por ID desde carreras.html
     try {
-        const career = await getCareerByIdService(id); // Get the specific career
+        const career = await getCareerByIdService(id); /// Obtiene la carrera por ID
         if (!career) {
             Swal.fire('Error', 'Carrera no encontrada para editar.', 'error');
             return;
         }
-        const faculties = await getAllCategoriesService(); // Get all faculties for the dropdown
-
+        const faculties = await getAllCategoriesService(); /// Obtiene todas las facultades para el dropdown (MENU DESPLEGABLE)
         const { value: formData } = await Swal.fire({
             title: 'Editar Carrera',
             html: `
@@ -297,9 +297,9 @@ async function editCareer(id) {
     }
 }
 
-async function deleteCareer(id) {
+async function deleteCareer(id) {/// Esta funcion se usa para eliminar una carrera por ID desde carreras.html
     try {
-        const result = await Swal.fire({
+        const result = await Swal.fire({// Esta funcion se usa para confirmar la eliminacion de una carrera por ID desde carreras.html
             title: '¿Está seguro?',
             text: `Va a eliminar la carrera con ID ${id}`,
             icon: 'warning',
@@ -310,7 +310,7 @@ async function deleteCareer(id) {
             cancelButtonText: 'Cancelar'
         });
 
-        if (result.isConfirmed) {
+        if (result.isConfirmed) {// Si el usuario confirma la eliminacion
             await deleteCareerService(id);
             Swal.fire('¡Eliminado!', 'La carrera fue eliminada.', 'success');
             await loadCareersTable();
@@ -326,7 +326,7 @@ async function deleteCareer(id) {
 // SERVICIOS PARA CATEGORÍAS (FACULTADES)
 // ==============================================
 
-async function getAllCategoriesService() {
+async function getAllCategoriesService() {/// Esta funcion se usa para obtener todas las facultades desde categorias.html
     const response = await fetch(API_CATEGORIES_URL, {
         headers: {
             "Authorization": `Bearer ${API_KEY}`
@@ -339,8 +339,8 @@ async function getAllCategoriesService() {
     return await response.json();
 }
 
-async function registerCategoryService(categoryData) {
-    const response = await fetch(API_CATEGORIES_URL, {
+async function registerCategoryService(categoryData) {/// Esta funcion se usa para registrar una facultad desde categorias.html
+    const response = await fetch(API_CATEGORIES_URL, {/// aca se remite desde categorias.html cuando el usurio pone registrar facultad
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -356,7 +356,7 @@ async function registerCategoryService(categoryData) {
 }
 
 // Servicio para obtener una categoría por ID
-async function getCategoryByIdService(id) {
+async function getCategoryByIdService(id) {/// Esta funcion se usa para obtener una facultad por ID desde categorias.html
     const response = await fetch(`${API_CATEGORIES_URL}/${id}`, {
         headers: {
             "Authorization": `Bearer ${API_KEY}`
@@ -369,8 +369,8 @@ async function getCategoryByIdService(id) {
     return await response.json();
 }
 
-async function updateCategoryService(id, data) {
-    const response = await fetch(`${API_CATEGORIES_URL}/${id}`, {
+async function updateCategoryService(id, data) {/// Esta funcion se usa para actualizar una facultad por ID desde categorias.html
+    const response = await fetch(`${API_CATEGORIES_URL}/${id}`, {/// aca se remite desde categorias.html cuando el usurio pone actualizar facultad
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -385,8 +385,8 @@ async function updateCategoryService(id, data) {
     return await response.json();
 }
 
-async function deleteCategoryService(id) {
-    const response = await fetch(`${API_CATEGORIES_URL}/${id}`, {
+async function deleteCategoryService(id) {/// Esta funcion se usa para eliminar una facultad por ID desde categorias.html
+    const response = await fetch(`${API_CATEGORIES_URL}/${id}`, {/// aca se remite desde categorias.html cuando el usurio pone eliminar facultad
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${API_KEY}`
@@ -403,7 +403,7 @@ async function deleteCategoryService(id) {
 // FUNCIONES PARA CATEGORÍAS (FACULTADES - manejo de UI)
 // ==============================================
 
-async function handleSearchCategoryById() {
+async function handleSearchCategoryById() {/// Esta funcion se usa para buscar una facultad por ID desde categorias.html
     const id = document.getElementById('categoryId').value.trim();
     if (!id) {
         Swal.fire({
@@ -436,7 +436,7 @@ async function handleSearchCategoryById() {
     }
 }
 
-async function handleDeleteCategoryById() {
+async function handleDeleteCategoryById() {/// Esta funcion se usa para eliminar una facultad por ID desde categorias.html
     const id = document.getElementById('deleteCategoryId').value.trim();
     if (!id) {
         Swal.fire({
@@ -480,7 +480,7 @@ async function handleDeleteCategoryById() {
     }
 }
 
-async function loadCategoriesTable() {
+async function loadCategoriesTable() {/// Esta funcion se usa para cargar todas las facultades en la tabla de categorias.html
     try {
         const categories = await getAllCategoriesService();
         const tbody = document.querySelector('#categoriesTable tbody');
@@ -522,7 +522,7 @@ async function loadCategoriesTable() {
     }
 }
 
-async function editCategory(id, currentName) {
+async function editCategory(id, currentName) {/// Esta funcion se usa para editar una facultad por ID desde categorias.html
     try {
         const { value: newName } = await Swal.fire({
             title: 'Editar nombre de la facultad',
@@ -540,14 +540,14 @@ async function editCategory(id, currentName) {
             }
         });
 
-        if (newName) { // If user confirmed and provided a name
+        if (newName) { // Si el usuario ingresa un nuevo nombre
             await updateCategoryService(id, { name: newName });
             Swal.fire({
                 icon: 'success',
                 title: '¡Facultad modificada!',
                 text: 'La modificación fue guardada correctamente.'
             });
-            await loadCategoriesTable(); // Reload table after update
+            await loadCategoriesTable(); // Recargar tabla después de la actualización
         }
     } catch (error) {
         console.error("Error al editar facultad:", error);
@@ -555,7 +555,7 @@ async function editCategory(id, currentName) {
     }
 }
 
-async function deleteCategory(id) {
+async function deleteCategory(id) {// Esta funcion se usa para eliminar una facultad por ID desde categorias.html
     try {
         const result = await Swal.fire({
             title: '¿Seguro que deseas eliminar esta facultad?',
@@ -572,7 +572,7 @@ async function deleteCategory(id) {
                 title: '¡Facultad eliminada!',
                 text: 'La facultad ha sido eliminada correctamente.'
             });
-            await loadCategoriesTable(); // Reload table after deletion
+            await loadCategoriesTable(); // Recargar tabla después de la eliminación
         }
     } catch (error) {
         console.error("Error al eliminar facultad:", error);
@@ -580,7 +580,7 @@ async function deleteCategory(id) {
     }
 }
 
-async function handleRegisterCategory(event) {
+async function handleRegisterCategory(event) {/// Esta funcion se usa para registrar una facultad desde categorias.html
     event.preventDefault();
     const name = document.getElementById('categoryName').value.trim();
 
@@ -615,10 +615,10 @@ async function handleRegisterCategory(event) {
 // ==============================================
 
 // Cargar facultades en el select
-async function loadFacultiesDropdown() {
+async function loadFacultiesDropdown() {/// Esta funcion se usa para cargar las facultades en el dropdown de carreras.html
     try {
-        const faculties = await getAllCategoriesService();
-        const facultySelect = document.getElementById('facultySelect');
+        const faculties = await getAllCategoriesService();/// Obtiene todas las facultades
+        const facultySelect = document.getElementById('facultySelect');/// /// Obtiene el elemento select del DOM (busca el elemento con el ID 'facultySelect' para mostrarlo como un desplegable)
         if (!facultySelect) return;
         facultySelect.innerHTML = '<option value="">Seleccione una facultad</option>';
         faculties.forEach(faculty => {
@@ -637,9 +637,9 @@ async function loadFacultiesDropdown() {
 }
 
 // Cargar carreras en la tabla
-async function loadCareersTable() {
+async function loadCareersTable() {/// Esta funcion se usa para cargar todas las carreras en la tabla de carreras.html
     try {
-        const [careers, faculties] = await Promise.all([
+        const [careers, faculties] = await Promise.all([///
             getAllCareersService(),
             getAllCategoriesService()
         ]);
@@ -692,9 +692,9 @@ async function loadCareersTable() {
 // SERVICIOS PARA ESTUDIANTES
 // ==============================================
 
-async function registerStudentService(studentData) {
+async function registerStudentService(studentData) {/// Esta funcion se usa para registrar un estudiante desde estudiantes.html
     try {
-        console.log("Datos enviados a la API (estudiante):", studentData);
+        console.log("Datos enviados a la API (estudiante):", studentData);///   Esta linea es para depurar y ver los datos que se envian a la API   
         const response = await fetch(API_STUDENTS_URL, {
             method: "POST",
             headers: {
@@ -716,7 +716,7 @@ async function registerStudentService(studentData) {
     }
 }
 
-async function getAllStudentsService() {
+async function getAllStudentsService() {/// Esta funcion se usa para obtener todos los estudiantes desde estudiantes.html
     try {
         const response = await fetch(API_STUDENTS_URL, {
             method: "GET",
@@ -737,7 +737,7 @@ async function getAllStudentsService() {
     }
 }
 
-async function getStudentByIdService(id) {
+async function getStudentByIdService(id) {/// Esta funcion se usa para obtener un estudiante por ID desde estudiantes.html
     try {
         const response = await fetch(`${API_STUDENTS_URL}/${id}`, {
             method: "GET",
@@ -758,7 +758,7 @@ async function getStudentByIdService(id) {
     }
 }
 
-async function updateStudentService(id, studentData) {
+async function updateStudentService(id, studentData) {/// Esta funcion se usa para actualizar un estudiante por ID desde estudiantes.html
     try {
         const response = await fetch(`${API_STUDENTS_URL}/${id}`, {
             method: "PUT",
@@ -781,7 +781,7 @@ async function updateStudentService(id, studentData) {
     }
 }
 
-async function deleteStudentService(id) {
+async function deleteStudentService(id) {/// Esta funcion se usa para eliminar un estudiante por ID desde estudiantes.html
     try {
         const response = await fetch(`${API_STUDENTS_URL}/${id}`, {
             method: "DELETE",
@@ -806,7 +806,7 @@ async function deleteStudentService(id) {
 // FUNCIONES PARA ESTUDIANTES (manejo de UI)
 // ==============================================
 
-async function handleRegisterStudent(event) {
+async function handleRegisterStudent(event) {/// Esta funcion se usa para registrar o actualizar un estudiante desde estudiantes.html
     event.preventDefault();
 
     const form = event.target;
@@ -865,7 +865,7 @@ async function handleRegisterStudent(event) {
     }
 }
 
-async function searchStudentById() {
+async function searchStudentById() {/// Esta funcion se usa para buscar un estudiante por ID desde estudiantes.html
     const id = document.getElementById('studentId').value.trim();
     if (!id) {
         Swal.fire({
@@ -897,8 +897,8 @@ async function searchStudentById() {
     }
 }
 
-async function searchStudentsByCareer() {
-    const careerId = document.getElementById('careerFilter').value;
+async function searchStudentsByCareer() {/// Esta funcion se usa para buscar estudiantes por carrera desde estudiantes.html
+    const careerId = document.getElementById('careerFilter').value;///  Obtiene el ID de la carrera seleccionada en el dropdown
     const studentsTableBody = document.querySelector('#studentsTable tbody');
 
     try {
@@ -974,7 +974,7 @@ async function searchStudentsByCareer() {
     }
 }
 
-async function editStudent(id) {
+async function editStudent(id) {///// Esta funcion se usa para editar un estudiante por ID desde estudiantes.html
     try {
         const student = await getStudentByIdService(id);
         const careers = await getAllCareersService(); // Fetch all careers for the dropdown
@@ -1043,7 +1043,7 @@ async function confirmDeleteStudent(id) { ///esta función se reutiliza en delet
     }
 }
 
-async function deleteStudentById() {
+async function deleteStudentById() {/// Esta funcion se usa para eliminar un estudiante por ID desde estudiantes.html
     const id = document.getElementById('deleteId').value.trim();
     if (!id) {
         Swal.fire({
@@ -1062,7 +1062,7 @@ async function deleteStudentById() {
 // INICIALIZACIÓN DE LA APLICACIÓN (PARA CADA PÁGINA)
 // ==============================================
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {/// Esta funcion se usa para inicializar la aplicacion y cargar los datos necesarios al cargar cada pagina
     // Logic for index.html (Students page)
     if (document.getElementById('studentForm')) {
         console.log("Initializing Student Page...");
@@ -1112,4 +1112,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (deleteCategoryBtn) deleteCategoryBtn.addEventListener('click', handleDeleteCategoryById);
     }
 });
-////
+/// PROFESOR:
+
+/// TUVE INCONVENIENTE (UNOS MINUTOS ANTES DE SUBIR EL TRABAJO) DESPUES DE HABER AGREGADO LA EXPLICACION EN CADA UNA DE LAS LINEAS DONDE SE ENCONTRABAN LAS FUNCIONES.
+// ESTE APP. JS NO TIENE NADA POR QUE LLEGO UN PUNTO QUE DEJO DE FUNCIONARME, NO PUDIENDO ENCONTRAR DONDE ESTABA EL ERROR.
+// SE LO PASE A LA IA Y ME MARCO QUE SE HABIA MODIFICADO EN VARIAS LINEAS. ES POR ELLO QUE SE LO COLOCO AL FINAL.
+/// TAMBIEN ME CUESTA PODER EXPLICAR CADA UNA DE LAS FUNCIONES, PORQUE NO TENGO NINGUNA EXPERIENCIA EN JAVASCRIPT, ME
+/// CUESTA MUCHICIMO PODER UTILIZAR LOS TERMINOS ESPECIFICOS. SI BIEN PUEDO ENTEDER A RAZGOS GENERALES QUE PUEDE 
+// CADA FUNCION, EL MOMENTO DE EXPRESARLO Y PODER PLANTEARLO RELACIONANDO EL HTML EL APPS Y LA API POR CADA FUNCION ES AHI
+// DONDE SE COMPLICA. NO OBSTANTE, ME ESFUERZO POR PODER ENTENDER Y EXPLICAR CADA UNA DE LAS FUNCIONES Y COMO SE RELACIONAN ENTRE SI.
+//
+// POR LO QUE LA EXPLICACION SE LO VOY A COLOCAR EN EL ARCHIVO  README TP1.MD==
