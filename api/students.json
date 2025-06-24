@@ -10,5 +10,11 @@
     "name": "Emilse Rolón",
     "career": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
     "career_id": 5
+  },
+  {
+    "id": 5,
+    "name": "Esteban Echeverria",
+    "career": "INGENIERIA EN TELECOMUNICACIONES",
+    "career_id": 6
   }
 ]

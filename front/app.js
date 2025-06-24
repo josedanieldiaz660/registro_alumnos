@@ -1057,6 +1057,93 @@ async function deleteStudentById() {/// Esta funcion se usa para eliminar un est
     document.getElementById('deleteId').value = ''; // Clear input field
 }
 
+// Cargar carreras en el dropdown de estudiantes
+async function loadCareersDropdown() {/// Cargar facultades en el select
+    try {
+        const careers = await getAllCareersService();
+        const studentCareerSelect = document.getElementById('studentCareer');
+        const careerFilterSelect = document.getElementById('careerFilter');
+
+        if (studentCareerSelect) {
+            studentCareerSelect.innerHTML = '<option value="">Seleccione una carrera</option>';
+            careers.forEach(career => {
+                const option = document.createElement('option');
+                option.value = career.id;
+                option.textContent = career.name;
+                studentCareerSelect.appendChild(option);
+            });
+        }
+
+        if (careerFilterSelect) {
+            careerFilterSelect.innerHTML = '<option value="">Todas las carreras</option>';
+            careers.forEach(career => {
+                const option = document.createElement('option');
+                option.value = career.id;
+                option.textContent = career.name;
+                careerFilterSelect.appendChild(option);
+            });
+        }
+
+    } catch (error) {
+        console.error("Error cargando carreras en dropdown:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar carreras para formulario'
+        });
+    }
+}
+
+// Cargar estudiantes en la tabla
+async function loadStudentsTable() {/// Esta funcion se usa para cargar todos los estudiantes en la tabla de estudiantes.html
+    try {
+        const [students, careers] = await Promise.all([
+            getAllStudentsService(),
+            getAllCareersService()
+        ]);
+        const tbody = document.querySelector('#studentsTable tbody');
+        if (!tbody) return; // Exit if not on the students page
+
+        tbody.innerHTML = students.map(student => {
+            const career = careers.find(c => c.id === student.career_id);
+            const careerName = career ? career.name : 'Desconocida';
+            return `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${careerName}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm edit-student-btn" data-id="${student.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm delete-student-btn" data-id="${student.id}">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // Re-attach event listeners for dynamically added buttons
+        document.querySelectorAll('.edit-student-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                await editStudent(id);
+            });
+        });
+
+        document.querySelectorAll('.delete-student-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                await confirmDeleteStudent(id);
+            });
+        });
+
+    } catch (error) {
+        console.error("Error cargando estudiantes:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar estudiantes',
+            text: error.message || 'Intente de nuevo.'
+        });
+    }
+}
+
 
 // ==============================================
 // INICIALIZACIÓN DE LA APLICACIÓN (PARA CADA PÁGINA)
