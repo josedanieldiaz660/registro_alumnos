@@ -112,9 +112,10 @@ async function handleRegisterCareer(event) {/// Esta funcion se usa para registr
     const code = document.getElementById('careerCode').value.trim();
     const name = document.getElementById('careerName').value.trim();
     const faculty_id = document.getElementById('facultySelect').value;
-    const level = document.getElementById('categorySelect').value.trim(); /// Este campo puede ser opcional, pero se valida si se ingresa
+    const level = document.getElementById('categorySelect').value.trim(); /// Ahora categorySelect tendrá opciones de nivel fijas
     const duration = document.getElementById('duration').value.trim();
 
+    // Re-validación con los valores correctos
     if (!code || !name || !faculty_id || !level || !duration) {
         Swal.fire({
             icon: 'warning',
@@ -126,10 +127,11 @@ async function handleRegisterCareer(event) {/// Esta funcion se usa para registr
 
     const careerData = { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) }; // Ensure numbers
     try {
-        await registerCareerService(careerData);
+        const result = await registerCareerService(careerData); // Captura la respuesta
         Swal.fire({
             icon: 'success',
-            title: '¡Carrera registrada correctamente!'
+            title: '¡Carrera registrada correctamente!',
+            text: `ID de la carrera: ${result.career.id}` // Muestra el ID de la carrera creada
         });
         document.getElementById('careerForm').reset();
         await loadCareersTable();

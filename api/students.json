@@ -1,8 +1,8 @@
 [
   {
     "id": 3,
-    "name": "juan jose gomez",
-    "career": "HISTORIA",
+    "name": "juan jose gomezzzz",
+    "career": "HISTO",
     "career_id": 4
   },
   {
@@ -16,5 +16,17 @@
     "name": "Esteban Echeverria",
     "career": "INGENIERIA EN TELECOMUNICACIONES",
     "career_id": 6
+  },
+  {
+    "id": 6,
+    "name": "JJJJ",
+    "career": "HISTO",
+    "career_id": 4
+  },
+  {
+    "id": 7,
+    "name": "ROBERTO CASTRO",
+    "career": "ASISTENTE SOCIAL",
+    "career_id": 7
   }
 ]

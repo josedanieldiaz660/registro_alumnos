@@ -30,5 +30,21 @@
     "faculty_id": 14,
     "level": "pregrado",
     "duration": "6"
+  },
+  {
+    "id": 8,
+    "code": "CARR-20250628-8166",
+    "name": "PROFESORADO EN HISTORIA",
+    "faculty_id": 9,
+    "level": "Posgrado",
+    "duration": 2
+  },
+  {
+    "id": 9,
+    "code": "CARR-20250628-8752",
+    "name": "FILOSOFIA",
+    "faculty_id": 8,
+    "level": "posgrado",
+    "duration": 4
   }
 ]
