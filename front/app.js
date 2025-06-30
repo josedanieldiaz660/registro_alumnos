@@ -154,20 +154,21 @@ function generateCareerCode() {/// Esta funcion genera un codigo unico para cada
     return `CARR-${dateStr}-${random}`;
 }
 
-async function handleSearchCareerById() {// Esta funcion se usa para buscar una carrera por ID desde carreras.html
+async function handleSearchCareerById() {
     const id = document.getElementById('careerId').value.trim();
-    if (!id) {
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
         Swal.fire({
             icon: 'warning',
             title: 'ID inválido',
-            text: 'Por favor ingrese un ID de carrera válido para buscar.'
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para buscar.'
         });
         return;
     }
 
     try {
         const career = await getCareerByIdService(id);
-        const faculty = await getCategoryByIdService(career.faculty_id); /// Obtiene la facultad por ID
+        const faculty = await getCategoryByIdService(career.faculty_id);
         const resultHTML = `
             <strong>Carrera encontrada:</strong><br><br>
             <strong>ID:</strong> ${career.id}<br>
@@ -189,13 +190,14 @@ async function handleSearchCareerById() {// Esta funcion se usa para buscar una 
     }
 }
 
-async function handleDeleteCareerById() {/// Esta funcion se usa para eliminar una carrera por ID desde carreras.html
+async function handleDeleteCareerById() {
     const id = document.getElementById('deleteCareerId').value.trim();
-    if (!id) {
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
         Swal.fire({
             icon: 'warning',
             title: 'ID inválido',
-            text: 'Por favor ingrese un ID de carrera válido para eliminar.'
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para eliminar.'
         });
         return;
     }
@@ -219,8 +221,8 @@ async function handleDeleteCareerById() {/// Esta funcion se usa para eliminar u
                 title: 'Carrera eliminada',
                 text: 'La carrera ha sido eliminada correctamente.'
             });
-            document.getElementById('deleteCareerId').value = ''; // Limpiar el campo
-            await loadCareersTable(); // Recargar la tabla
+            document.getElementById('deleteCareerId').value = '';
+            await loadCareersTable();
             showResult('deleteCareerResultDiv', 'Carrera eliminada correctamente.');
         }
     } catch (error) {
@@ -234,76 +236,123 @@ async function handleDeleteCareerById() {/// Esta funcion se usa para eliminar u
     }
 }
 
-async function editCareer(id) {/// Esta funcion se usa para editar una carrera por ID desde carreras.html
-    try {
-        const career = await getCareerByIdService(id); /// Obtiene la carrera por ID
-        if (!career) {
-            Swal.fire('Error', 'Carrera no encontrada para editar.', 'error');
-            return;
-        }
-        const faculties = await getAllCategoriesService(); /// Obtiene todas las facultades para el dropdown (MENU DESPLEGABLE)
-        const { value: formData } = await Swal.fire({
-            title: 'Editar Carrera',
-            html: `
-                <div class="mb-3">
-                    <label class="form-label">Código</label>
-                    <input id="swal-input-code" class="form-control" value="${career.code}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input id="swal-input-name" class="form-control" value="${career.name}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Facultad</label>
-                    <select id="swal-input-faculty" class="form-select" required>
-                        ${faculties.map(f =>
-                            `<option value="${f.id}" ${f.id == career.faculty_id ? 'selected' : ''}>${f.name}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Nivel</label>
-                    <input id="swal-input-level" class="form-control" value="${career.level || ''}">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Duración</label>
-                    <input id="swal-input-duration" type="number" class="form-control" value="${career.duration || ''}">
-                </div>
-            `,
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: 'Guardar',
-            cancelButtonText: 'Cancelar',
-            preConfirm: () => {
-                const code = document.getElementById('swal-input-code').value.trim();
-                const name = document.getElementById('swal-input-name').value.trim();
-                const faculty_id = document.getElementById('swal-input-faculty').value;
-                const level = document.getElementById('swal-input-level').value.trim();
-                const duration = document.getElementById('swal-input-duration').value.trim();
-                if (!code || !name || !faculty_id) {
-                    Swal.showValidationMessage('Código, nombre y facultad son campos obligatorios');
-                    return false;
-                }
-                return { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) };
-            }
-        });
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Error HTTP: ${response.status}`);
+    }
+    return await response.json();
+}
 
-        if (formData) {
-            await updateCareerService(id, formData);
-            Swal.fire('¡Actualizado!', 'La carrera fue actualizada.', 'success');
-            await loadCareersTable();
-        }
+// ==============================================
+// FUNCIONES PARA CARRERAS (manejo de UI)
+// ==============================================
+
+async function handleRegisterCareer(event) {/// Esta funcion se usa para registrar una carrera desde carreras.html
+    event.preventDefault();
+
+    const code = document.getElementById('careerCode').value.trim();
+    const name = document.getElementById('careerName').value.trim();
+    const faculty_id = document.getElementById('facultySelect').value;
+    const level = document.getElementById('categorySelect').value.trim(); /// Ahora categorySelect tendrá opciones de nivel fijas
+    const duration = document.getElementById('duration').value.trim();
+
+    // Re-validación con los valores correctos
+    if (!code || !name || !faculty_id || !level || !duration) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Todos los campos son obligatorios'
+        });
+        return;
+    }
+
+    const careerData = { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) }; // Ensure numbers
+    try {
+        const result = await registerCareerService(careerData); // Captura la respuesta
+        Swal.fire({
+            icon: 'success',
+            title: '¡Carrera registrada correctamente!',
+            text: `ID de la carrera: ${result.career.id}` // Muestra el ID de la carrera creada
+        });
+        document.getElementById('careerForm').reset();
+        await loadCareersTable();
     } catch (error) {
-        console.error("Error al editar carrera:", error);
-        Swal.fire('Error', error.message || 'No se pudo editar la carrera', 'error');
+        console.error("Error al registrar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar carrera',
+            text: error.message
+        });
     }
 }
 
-async function deleteCareer(id) {/// Esta funcion se usa para eliminar una carrera por ID desde carreras.html
+function generateCareerCode() {/// Esta funcion genera un codigo unico para cada carrera
+    const now = new Date();
+    const dateStr = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000);
+    return `CARR-${dateStr}-${random}`;
+}
+
+async function handleSearchCareerById() {
+    const id = document.getElementById('careerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para buscar.'
+        });
+        return;
+    }
+
     try {
-        const result = await Swal.fire({// Esta funcion se usa para confirmar la eliminacion de una carrera por ID desde carreras.html
+        const career = await getCareerByIdService(id);
+        const faculty = await getCategoryByIdService(career.faculty_id);
+        const resultHTML = `
+            <strong>Carrera encontrada:</strong><br><br>
+            <strong>ID:</strong> ${career.id}<br>
+            <strong>Código:</strong> ${career.code}<br>
+            <strong>Nombre:</strong> ${career.name}<br>
+            <strong>Facultad:</strong> ${faculty ? faculty.name : 'Desconocida'}<br>
+            <strong>Nivel:</strong> ${career.level}<br>
+            <strong>Duración:</strong> ${career.duration} años
+        `;
+        showResult('getCareerResultDiv', resultHTML);
+    } catch (error) {
+        console.error("Error al buscar carrera por ID:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error buscando carrera',
+            text: error.message || 'No se pudo encontrar la carrera con el ID proporcionado.'
+        });
+        showResult('getCareerResultDiv', 'Error: ' + (error.message || 'Carrera no encontrada.'), true);
+    }
+}
+
+async function handleDeleteCareerById() {
+    const id = document.getElementById('deleteCareerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para eliminar.'
+        });
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
             title: '¿Está seguro?',
-            text: `Va a eliminar la carrera con ID ${id}`,
+            text: `Va a eliminar la carrera con ID ${id}. Esta acción no se puede deshacer.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -312,20 +361,484 @@ async function deleteCareer(id) {/// Esta funcion se usa para eliminar una carre
             cancelButtonText: 'Cancelar'
         });
 
-        if (result.isConfirmed) {// Si el usuario confirma la eliminacion
+        if (result.isConfirmed) {
             await deleteCareerService(id);
-            Swal.fire('¡Eliminado!', 'La carrera fue eliminada.', 'success');
+            Swal.fire({
+                icon: 'success',
+                title: 'Carrera eliminada',
+                text: 'La carrera ha sido eliminada correctamente.'
+            });
+            document.getElementById('deleteCareerId').value = '';
             await loadCareersTable();
+            showResult('deleteCareerResultDiv', 'Carrera eliminada correctamente.');
         }
     } catch (error) {
         console.error("Error al eliminar carrera:", error);
-        Swal.fire('Error', error.message || 'No se pudo eliminar la carrera', 'error');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar carrera',
+            text: error.message || 'No se pudo eliminar la carrera.'
+        });
+        showResult('deleteCareerResultDiv', 'Error: ' + (error.message || 'No se pudo eliminar la carrera.'), true);
     }
 }
 
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Error HTTP: ${response.status}`);
+    }
+    return await response.json();
+}
 
 // ==============================================
-// SERVICIOS PARA CATEGORÍAS (FACULTADES)
+// FUNCIONES PARA CARRERAS (manejo de UI)
+// ==============================================
+
+async function handleRegisterCareer(event) {/// Esta funcion se usa para registrar una carrera desde carreras.html
+    event.preventDefault();
+
+    const code = document.getElementById('careerCode').value.trim();
+    const name = document.getElementById('careerName').value.trim();
+    const faculty_id = document.getElementById('facultySelect').value;
+    const level = document.getElementById('categorySelect').value.trim(); /// Ahora categorySelect tendrá opciones de nivel fijas
+    const duration = document.getElementById('duration').value.trim();
+
+    // Re-validación con los valores correctos
+    if (!code || !name || !faculty_id || !level || !duration) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Todos los campos son obligatorios'
+        });
+        return;
+    }
+
+    const careerData = { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) }; // Ensure numbers
+    try {
+        const result = await registerCareerService(careerData); // Captura la respuesta
+        Swal.fire({
+            icon: 'success',
+            title: '¡Carrera registrada correctamente!',
+            text: `ID de la carrera: ${result.career.id}` // Muestra el ID de la carrera creada
+        });
+        document.getElementById('careerForm').reset();
+        await loadCareersTable();
+    } catch (error) {
+        console.error("Error al registrar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar carrera',
+            text: error.message
+        });
+    }
+}
+
+function generateCareerCode() {/// Esta funcion genera un codigo unico para cada carrera
+    const now = new Date();
+    const dateStr = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000);
+    return `CARR-${dateStr}-${random}`;
+}
+
+async function handleSearchCareerById() {
+    const id = document.getElementById('careerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para buscar.'
+        });
+        return;
+    }
+
+    try {
+        const career = await getCareerByIdService(id);
+        const faculty = await getCategoryByIdService(career.faculty_id);
+        const resultHTML = `
+            <strong>Carrera encontrada:</strong><br><br>
+            <strong>ID:</strong> ${career.id}<br>
+            <strong>Código:</strong> ${career.code}<br>
+            <strong>Nombre:</strong> ${career.name}<br>
+            <strong>Facultad:</strong> ${faculty ? faculty.name : 'Desconocida'}<br>
+            <strong>Nivel:</strong> ${career.level}<br>
+            <strong>Duración:</strong> ${career.duration} años
+        `;
+        showResult('getCareerResultDiv', resultHTML);
+    } catch (error) {
+        console.error("Error al buscar carrera por ID:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error buscando carrera',
+            text: error.message || 'No se pudo encontrar la carrera con el ID proporcionado.'
+        });
+        showResult('getCareerResultDiv', 'Error: ' + (error.message || 'Carrera no encontrada.'), true);
+    }
+}
+
+async function handleDeleteCareerById() {
+    const id = document.getElementById('deleteCareerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para eliminar.'
+        });
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
+            title: '¿Está seguro?',
+            text: `Va a eliminar la carrera con ID ${id}. Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            await deleteCareerService(id);
+            Swal.fire({
+                icon: 'success',
+                title: 'Carrera eliminada',
+                text: 'La carrera ha sido eliminada correctamente.'
+            });
+            document.getElementById('deleteCareerId').value = '';
+            await loadCareersTable();
+            showResult('deleteCareerResultDiv', 'Carrera eliminada correctamente.');
+        }
+    } catch (error) {
+        console.error("Error al eliminar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar carrera',
+            text: error.message || 'No se pudo eliminar la carrera.'
+        });
+        showResult('deleteCareerResultDiv', 'Error: ' + (error.message || 'No se pudo eliminar la carrera.'), true);
+    }
+}
+
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Error HTTP: ${response.status}`);
+    }
+    return await response.json();
+}
+
+// ==============================================
+// FUNCIONES PARA CARRERAS (manejo de UI)
+// ==============================================
+
+async function handleRegisterCareer(event) {/// Esta funcion se usa para registrar una carrera desde carreras.html
+    event.preventDefault();
+
+    const code = document.getElementById('careerCode').value.trim();
+    const name = document.getElementById('careerName').value.trim();
+    const faculty_id = document.getElementById('facultySelect').value;
+    const level = document.getElementById('categorySelect').value.trim(); /// Ahora categorySelect tendrá opciones de nivel fijas
+    const duration = document.getElementById('duration').value.trim();
+
+    // Re-validación con los valores correctos
+    if (!code || !name || !faculty_id || !level || !duration) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Todos los campos son obligatorios'
+        });
+        return;
+    }
+
+    const careerData = { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) }; // Ensure numbers
+    try {
+        const result = await registerCareerService(careerData); // Captura la respuesta
+        Swal.fire({
+            icon: 'success',
+            title: '¡Carrera registrada correctamente!',
+            text: `ID de la carrera: ${result.career.id}` // Muestra el ID de la carrera creada
+        });
+        document.getElementById('careerForm').reset();
+        await loadCareersTable();
+    } catch (error) {
+        console.error("Error al registrar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar carrera',
+            text: error.message
+        });
+    }
+}
+
+function generateCareerCode() {/// Esta funcion genera un codigo unico para cada carrera
+    const now = new Date();
+    const dateStr = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000);
+    return `CARR-${dateStr}-${random}`;
+}
+
+async function handleSearchCareerById() {
+    const id = document.getElementById('careerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para buscar.'
+        });
+        return;
+    }
+
+    try {
+        const career = await getCareerByIdService(id);
+        const faculty = await getCategoryByIdService(career.faculty_id);
+        const resultHTML = `
+            <strong>Carrera encontrada:</strong><br><br>
+            <strong>ID:</strong> ${career.id}<br>
+            <strong>Código:</strong> ${career.code}<br>
+            <strong>Nombre:</strong> ${career.name}<br>
+            <strong>Facultad:</strong> ${faculty ? faculty.name : 'Desconocida'}<br>
+            <strong>Nivel:</strong> ${career.level}<br>
+            <strong>Duración:</strong> ${career.duration} años
+        `;
+        showResult('getCareerResultDiv', resultHTML);
+    } catch (error) {
+        console.error("Error al buscar carrera por ID:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error buscando carrera',
+            text: error.message || 'No se pudo encontrar la carrera con el ID proporcionado.'
+        });
+        showResult('getCareerResultDiv', 'Error: ' + (error.message || 'Carrera no encontrada.'), true);
+    }
+}
+
+async function handleDeleteCareerById() {
+    const id = document.getElementById('deleteCareerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para eliminar.'
+        });
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
+            title: '¿Está seguro?',
+            text: `Va a eliminar la carrera con ID ${id}. Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            await deleteCareerService(id);
+            Swal.fire({
+                icon: 'success',
+                title: 'Carrera eliminada',
+                text: 'La carrera ha sido eliminada correctamente.'
+            });
+            document.getElementById('deleteCareerId').value = '';
+            await loadCareersTable();
+            showResult('deleteCareerResultDiv', 'Carrera eliminada correctamente.');
+        }
+    } catch (error) {
+        console.error("Error al eliminar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar carrera',
+            text: error.message || 'No se pudo eliminar la carrera.'
+        });
+        showResult('deleteCareerResultDiv', 'Error: ' + (error.message || 'No se pudo eliminar la carrera.'), true);
+    }
+}
+
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Error HTTP: ${response.status}`);
+    }
+    return await response.json();
+}
+
+// ==============================================
+// FUNCIONES PARA CARRERAS (manejo de UI)
+// ==============================================
+
+async function handleRegisterCareer(event) {/// Esta funcion se usa para registrar una carrera desde carreras.html
+    event.preventDefault();
+
+    const code = document.getElementById('careerCode').value.trim();
+    const name = document.getElementById('careerName').value.trim();
+    const faculty_id = document.getElementById('facultySelect').value;
+    const level = document.getElementById('categorySelect').value.trim(); /// Ahora categorySelect tendrá opciones de nivel fijas
+    const duration = document.getElementById('duration').value.trim();
+
+    // Re-validación con los valores correctos
+    if (!code || !name || !faculty_id || !level || !duration) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Todos los campos son obligatorios'
+        });
+        return;
+    }
+
+    const careerData = { code, name, faculty_id: Number(faculty_id), level, duration: Number(duration) }; // Ensure numbers
+    try {
+        const result = await registerCareerService(careerData); // Captura la respuesta
+        Swal.fire({
+            icon: 'success',
+            title: '¡Carrera registrada correctamente!',
+            text: `ID de la carrera: ${result.career.id}` // Muestra el ID de la carrera creada
+        });
+        document.getElementById('careerForm').reset();
+        await loadCareersTable();
+    } catch (error) {
+        console.error("Error al registrar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar carrera',
+            text: error.message
+        });
+    }
+}
+
+function generateCareerCode() {/// Esta funcion genera un codigo unico para cada carrera
+    const now = new Date();
+    const dateStr = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000);
+    return `CARR-${dateStr}-${random}`;
+}
+
+async function handleSearchCareerById() {
+    const id = document.getElementById('careerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para buscar.'
+        });
+        return;
+    }
+
+    try {
+        const career = await getCareerByIdService(id);
+        const faculty = await getCategoryByIdService(career.faculty_id);
+        const resultHTML = `
+            <strong>Carrera encontrada:</strong><br><br>
+            <strong>ID:</strong> ${career.id}<br>
+            <strong>Código:</strong> ${career.code}<br>
+            <strong>Nombre:</strong> ${career.name}<br>
+            <strong>Facultad:</strong> ${faculty ? faculty.name : 'Desconocida'}<br>
+            <strong>Nivel:</strong> ${career.level}<br>
+            <strong>Duración:</strong> ${career.duration} años
+        `;
+        showResult('getCareerResultDiv', resultHTML);
+    } catch (error) {
+        console.error("Error al buscar carrera por ID:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error buscando carrera',
+            text: error.message || 'No se pudo encontrar la carrera con el ID proporcionado.'
+        });
+        showResult('getCareerResultDiv', 'Error: ' + (error.message || 'Carrera no encontrada.'), true);
+    }
+}
+
+async function handleDeleteCareerById() {
+    const id = document.getElementById('deleteCareerId').value.trim();
+    // Validación: debe ser un número entero positivo
+    if (!id || isNaN(id) || Number(id) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ID inválido',
+            text: 'Por favor ingrese un ID de carrera válido (mayor a 0) para eliminar.'
+        });
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
+            title: '¿Está seguro?',
+            text: `Va a eliminar la carrera con ID ${id}. Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            await deleteCareerService(id);
+            Swal.fire({
+                icon: 'success',
+                title: 'Carrera eliminada',
+                text: 'La carrera ha sido eliminada correctamente.'
+            });
+            document.getElementById('deleteCareerId').value = '';
+            await loadCareersTable();
+            showResult('deleteCareerResultDiv', 'Carrera eliminada correctamente.');
+        }
+    } catch (error) {
+        console.error("Error al eliminar carrera:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar carrera',
+            text: error.message || 'No se pudo eliminar la carrera.'
+        });
+        showResult('deleteCareerResultDiv', 'Error: ' + (error.message || 'No se pudo eliminar la carrera.'), true);
+    }
+}
+
+async function updateCareerService(id, data) {/// Esta funcion se usa para actualizar una carrera por ID desde carreras.html
+    const response = await fetch(`${API_CAREERS_URL}/${id}`, {/// aca se remite desde carreras.html cuando el usurio pone actualizar carrera
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Error HTTP: ${response.status}`);
+    }
+    return await response.json();
+}
+
+// ==============================================
+// FUNCIONES PARA CATEGORÍAS (FACULTADES)
 // ==============================================
 
 async function getAllCategoriesService() {/// Esta funcion se usa para obtener todas las facultades desde categorias.html
@@ -1121,7 +1634,6 @@ async function loadStudentsTable() {/// Esta funcion se usa para cargar todos lo
             `;
         }).join('');
 
-        // Re-attach event listeners for dynamically added buttons
         document.querySelectorAll('.edit-student-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.dataset.id;
@@ -1146,69 +1658,54 @@ async function loadStudentsTable() {/// Esta funcion se usa para cargar todos lo
     }
 }
 
-
-// ==============================================
-// INICIALIZACIÓN DE LA APLICACIÓN (PARA CADA PÁGINA)
-// ==============================================
-
-document.addEventListener('DOMContentLoaded', async () => {/// Esta funcion se usa para inicializar la aplicacion y cargar los datos necesarios al cargar cada pagina
-    // Logic for index.html (Students page)
-    if (document.getElementById('studentForm')) {
-        console.log("Initializing Student Page...");
-        await loadCareersDropdown(); // Load careers for the student form dropdown
-        await loadStudentsTable(); // Load students into the table
-
-        // Set up event listeners for student page
-        document.getElementById('studentForm').addEventListener('submit', handleRegisterStudent);
-        const searchByIdBtn = document.getElementById('searchByIdBtn');
-        if (searchByIdBtn) searchByIdBtn.addEventListener('click', searchStudentById);
-        const searchByCareerBtn = document.getElementById('searchByCareerBtn');
-        if (searchByCareerBtn) searchByCareerBtn.addEventListener('click', searchStudentsByCareer);
-        const deleteBtn = document.getElementById('deleteBtn');
-        if (deleteBtn) deleteBtn.addEventListener('click', deleteStudentById);
+// Al cargar el documento
+document.addEventListener('DOMContentLoaded', () => {
+    // ----------- ESTUDIANTES (index.html) -----------
+    const studentForm = document.getElementById('studentForm');
+    if (studentForm) {
+        studentForm.addEventListener('submit', handleRegisterStudent);
+        loadCareersDropdown();
+        loadStudentsTable();
     }
+    const searchByIdBtn = document.getElementById('searchByIdBtn');
+    if (searchByIdBtn) searchByIdBtn.addEventListener('click', searchStudentById);
 
-    // Logic for carreras.html (Careers page)
-    if (document.getElementById('careerForm')) {
-        console.log("Initializing Careers Page...");
-        await loadFacultiesDropdown(); // Load faculties for career registration/edit dropdown
-        await loadCareersTable(); // Load existing careers into the table
+    const searchByCareerBtn = document.getElementById('searchByCareerBtn');
+    if (searchByCareerBtn) searchByCareerBtn.addEventListener('click', searchStudentsByCareer);
 
-        // Set up event listeners for career page
-        document.getElementById('careerForm').addEventListener('submit', handleRegisterCareer);
-        const generateCodeBtn = document.getElementById('generateCodeBtn');
-        if (generateCodeBtn) {
-            generateCodeBtn.addEventListener('click', () => {
-                document.getElementById('careerCode').value = generateCareerCode();
-            });
-        }
-        const searchCareerBtn = document.getElementById('searchCareerBtn');
-        if (searchCareerBtn) searchCareerBtn.addEventListener('click', handleSearchCareerById);
-        const deleteCareerBtn = document.getElementById('deleteCareerBtn');
-        if (deleteCareerBtn) deleteCareerBtn.addEventListener('click', handleDeleteCareerById);
+    const deleteBtn = document.getElementById('deleteBtn');
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteStudentById);
+
+    // ----------- CARRERAS (carreras.html) -----------
+    const careerForm = document.getElementById('careerForm');
+    if (careerForm) {
+        careerForm.addEventListener('submit', handleRegisterCareer);
+        loadFacultiesDropdown();
+        loadCareersTable();
+        // Código único para carrera
+        const codeInput = document.getElementById('careerCode');
+        if (codeInput) codeInput.value = generateCareerCode();
+        careerForm.addEventListener('reset', () => {
+            setTimeout(() => {
+                codeInput.value = generateCareerCode();
+            }, 0);
+        });
     }
+    const searchCareerByIdBtn = document.getElementById('searchCareerByIdBtn');
+    if (searchCareerByIdBtn) searchCareerByIdBtn.addEventListener('click', handleSearchCareerById);
 
-    // Logic for categorias.html (Faculties/Categories page)
-    if (document.getElementById('categoryForm')) {
-        console.log("Initializing Categories Page...");
-        await loadCategoriesTable(); // Load existing categories into the table
+    const deleteCareerBtn = document.getElementById('deleteCareerBtn');
+    if (deleteCareerBtn) deleteCareerBtn.addEventListener('click', handleDeleteCareerById);
 
-        // Set up event listeners for category page
-        document.getElementById('categoryForm').addEventListener('submit', handleRegisterCategory);
-        const searchCategoryBtn = document.getElementById('searchCategoryBtn');
-        if (searchCategoryBtn) searchCategoryBtn.addEventListener('click', handleSearchCategoryById);
-        const deleteCategoryBtn = document.getElementById('deleteCategoryBtn');
-        if (deleteCategoryBtn) deleteCategoryBtn.addEventListener('click', handleDeleteCategoryById);
+    // ----------- FACULTADES (categorias.html) -----------
+    const categoryForm = document.getElementById('categoryForm');
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', handleRegisterCategory);
+        loadCategoriesTable();
     }
+    const searchCategoryByIdBtn = document.getElementById('searchCategoryByIdBtn');
+    if (searchCategoryByIdBtn) searchCategoryByIdBtn.addEventListener('click', handleSearchCategoryById);
+
+    const deleteCategoryBtn = document.getElementById('deleteCategoryBtn');
+    if (deleteCategoryBtn) deleteCategoryBtn.addEventListener('click', handleDeleteCategoryById);
 });
-/// PROFESOR:
-
-/// TUVE INCONVENIENTE (UNOS MINUTOS ANTES DE SUBIR EL TRABAJO) DESPUES DE HABER AGREGADO LA EXPLICACION EN CADA UNA DE LAS LINEAS DONDE SE ENCONTRABAN LAS FUNCIONES.
-// ESTE APP. JS NO TIENE NADA POR QUE LLEGO UN PUNTO QUE DEJO DE FUNCIONARME, NO PUDIENDO ENCONTRAR DONDE ESTABA EL ERROR.
-// SE LO PASE A LA IA Y ME MARCO QUE SE HABIA MODIFICADO EN VARIAS LINEAS. ES POR ELLO QUE SE LO COLOCO AL FINAL.
-/// TAMBIEN ME CUESTA PODER EXPLICAR CADA UNA DE LAS FUNCIONES, PORQUE NO TENGO NINGUNA EXPERIENCIA EN JAVASCRIPT, ME
-/// CUESTA MUCHICIMO PODER UTILIZAR LOS TERMINOS ESPECIFICOS. SI BIEN PUEDO ENTEDER A RAZGOS GENERALES QUE PUEDE 
-// CADA FUNCION, EL MOMENTO DE EXPRESARLO Y PODER PLANTEARLO RELACIONANDO EL HTML EL APPS Y LA API POR CADA FUNCION ES AHI
-// DONDE SE COMPLICA. NO OBSTANTE, ME ESFUERZO POR PODER ENTENDER Y EXPLICAR CADA UNA DE LAS FUNCIONES Y COMO SE RELACIONAN ENTRE SI.
-//
-// POR LO QUE LA EXPLICACION SE LO VOY A COLOCAR EN EL ARCHIVO  README TP1.MD==

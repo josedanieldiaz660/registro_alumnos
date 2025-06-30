@@ -3,7 +3,7 @@
     "id": 4,
     "code": "CARR-20250607-7669",
     "name": "HISTO",
-    "faculty_id": 9,
+    "faculty_id": 10,
     "level": "posgrado",
     "duration": 4
   },
@@ -21,7 +21,7 @@
     "name": "INGENIERIA EN TELECOMUNICACIONES",
     "faculty_id": 12,
     "level": "posgrado",
-    "duration": "11"
+    "duration": 11
   },
   {
     "id": 7,
@@ -46,5 +46,13 @@
     "faculty_id": 8,
     "level": "posgrado",
     "duration": 4
+  },
+  {
+    "id": 10,
+    "code": "CARR-20250630-8188",
+    "name": "ASISTENTE JURIDICO",
+    "faculty_id": 16,
+    "level": "Posgrado",
+    "duration": 1
   }
 ]

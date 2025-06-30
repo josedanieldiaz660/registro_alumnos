@@ -7,7 +7,7 @@
   },
   {
     "id": 4,
-    "name": "Emilse Rolón",
+    "name": "Emilse LIZ Rolón",
     "career": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
     "career_id": 5
   },
@@ -28,5 +28,11 @@
     "name": "ROBERTO CASTRO",
     "career": "ASISTENTE SOCIAL",
     "career_id": 7
+  },
+  {
+    "id": 8,
+    "name": "LEANDRO SANTINO DIAZ",
+    "career": "ASISTENTE JURIDICO",
+    "career_id": 10
   }
 ]

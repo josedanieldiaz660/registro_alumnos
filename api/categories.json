@@ -20,15 +20,15 @@
     "name": "INGENIERIA"
   },
   {
-    "id": 13,
-    "name": "BIOLOGIAS"
-  },
-  {
     "id": 14,
     "name": "EXACTAS"
   },
   {
     "id": 15,
-    "name": "FILOSOFIA Y LETRAS"
+    "name": "FILOSOFIA Y LETRASDD"
+  },
+  {
+    "id": 16,
+    "name": "CIENCIAS SOCIALES"
   }
 ]
