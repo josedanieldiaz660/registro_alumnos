@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": 3,
+    "name": "juan jose gomezzzz",
+    "career": "HISTO",
+    "career_id": 4
+  },
+  {
+    "id": 4,
+    "name": "Emilse LIZ Rolón",
+    "career": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
+    "career_id": 5
+  },
+  {
+    "id": 5,
+    "name": "Esteban Echeverria",
+    "career": "INGENIERIA EN TELECOMUNICACIONES",
+    "career_id": 6
+  },
+  {
+    "id": 6,
+    "name": "JJJJ",
+    "career": "HISTO",
+    "career_id": 4
+  },
+  {
+    "id": 7,
+    "name": "ROBERTO CASTRO",
+    "career": "ASISTENTE SOCIAL",
+    "career_id": 7
+  },
+  {
+    "id": 8,
+    "name": "LEANDRO SANTINO DIAZ",
+    "career": "ASISTENTE JURIDICO",
+    "career_id": 10
+  }
+]

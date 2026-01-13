@@ -1,0 +1,58 @@
+[
+  {
+    "id": 4,
+    "code": "CARR-20250607-7669",
+    "name": "HISTO",
+    "faculty_id": 10,
+    "level": "posgrado",
+    "duration": 4
+  },
+  {
+    "id": 5,
+    "code": "CARR-20250619-5024",
+    "name": "LICENCIATURA EN CIENCIAS DE DATOS y IA",
+    "faculty_id": 12,
+    "level": "pregrado",
+    "duration": "9"
+  },
+  {
+    "id": 6,
+    "code": "CARR-20250619-2164",
+    "name": "INGENIERIA EN TELECOMUNICACIONES",
+    "faculty_id": 12,
+    "level": "posgrado",
+    "duration": 11
+  },
+  {
+    "id": 7,
+    "code": "CARR-20250619-2026",
+    "name": "ASISTENTE SOCIAL",
+    "faculty_id": 14,
+    "level": "pregrado",
+    "duration": "6"
+  },
+  {
+    "id": 8,
+    "code": "CARR-20250628-8166",
+    "name": "PROFESORADO EN HISTORIA",
+    "faculty_id": 9,
+    "level": "Posgrado",
+    "duration": 2
+  },
+  {
+    "id": 9,
+    "code": "CARR-20250628-8752",
+    "name": "FILOSOFIA",
+    "faculty_id": 8,
+    "level": "posgrado",
+    "duration": 4
+  },
+  {
+    "id": 10,
+    "code": "CARR-20250630-8188",
+    "name": "ASISTENTE JURIDICO",
+    "faculty_id": 16,
+    "level": "Posgrado",
+    "duration": 1
+  }
+]
